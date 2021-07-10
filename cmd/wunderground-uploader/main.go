@@ -1,14 +1,18 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	fmt.Println("Starting")
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp: true,
+	})
+	log.Info("Starting")
 
 	// Messages will be handled through the callback so we really just need to wait until a shutdown
 	// is requested
@@ -16,11 +20,11 @@ func main() {
 	signal.Notify(sig, os.Interrupt)
 	signal.Notify(sig, syscall.SIGTERM)
 
-	fmt.Println("Waiting")
+	log.Info("Waiting")
 
 	<-sig
 
-	fmt.Println("signal caught - exiting")
+	log.Info("signal caught - exiting")
 
-	fmt.Println("shutdown complete")
+	log.Info("shutdown complete")
 }
