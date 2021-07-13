@@ -8,7 +8,6 @@ include .env
 GOBASE=$(shell pwd | sed 's/ /\\ /g')
 GOPATH="$(GOBASE)/vendor:$(GOBASE)"
 GOBIN=$(GOBASE)/bin
-GOFILES := $(shell find . -path ./vendor -prune -o -name "*.go" -not -name '*_test.go' -print)
 
 # Redirect error output to a file, so we can show it in development mode.
 STDERR=/tmp/wunderground-uploader-stderr.txt
@@ -20,7 +19,7 @@ MAKEFLAGS += --silent
 .PHONY: clean
 clean:
 	@echo "  >  Cleaning build cache"
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go clean
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go clean -mod=mod
 	@rm -rf bin
 
 .PHONY: deps
@@ -28,9 +27,9 @@ deps:
 	@echo "  >  Getting binary dependencies..."
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go mod download
 
-compile: clean deps
+compile: clean deps test
 	@echo "  >  Building binary..."
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go build -mod=mod -o $(GOBIN)/wunderground-uploader $(GOFILES)
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go build -mod=mod -o $(GOBIN)/wunderground-uploader $(GOBASE)/cmd/wunderground-uploader/main.go
 
 ## build: Compile the binary.
 build:
@@ -38,6 +37,11 @@ build:
 	@-rm $(STDERR)
 	@-$(MAKE) -s compile 2> $(STDERR)
 	@cat $(STDERR) | sed -e '1s/.*/\nError:\n/'  | sed 's/make\[.*/ /' | sed "/^/s/^/     /" 1>&2
+
+## test: Run all unit tests
+test:
+	@echo "  >  Running tests..."
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go test -mod=mod ./...
 
 ## docker-build: Builds the docker image.
 docker-build:
