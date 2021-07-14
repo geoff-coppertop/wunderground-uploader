@@ -10,14 +10,15 @@ import (
 )
 
 func main() {
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp: true,
+	})
+
 	cfg, err := conf.GetConfig()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp: true,
-	})
 	log.SetLevel(cfg.Debug)
 	log.Info("Starting")
 

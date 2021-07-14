@@ -38,10 +38,15 @@ build:
 	@-$(MAKE) -s compile 2> $(STDERR)
 	@cat $(STDERR) | sed -e '1s/.*/\nError:\n/'  | sed 's/make\[.*/ /' | sed "/^/s/^/     /" 1>&2
 
-## test: Run all unit tests
+## test: Generate and run all unit tests
 test:
 	@echo "  >  Running tests..."
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go test -mod=mod ./...
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go test -v -coverprofile=.coverage.out -mod=mod ./...
+
+## coverage: Show unit test coverage report
+coverage: test
+	@echo "  >  Parsing coverage..."
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go tool cover -html=.coverage.out
 
 ## docker-build: Builds the docker image.
 docker-build:
