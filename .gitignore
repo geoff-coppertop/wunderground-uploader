@@ -132,3 +132,5 @@ dmypy.json
 
 # macOS FS
 .DS_Store
+
+out/

@@ -41,12 +41,13 @@ build:
 ## test: Generate and run all unit tests
 test:
 	@echo "  >  Running tests..."
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go test -v -coverprofile=.coverage.out -mod=mod ./...
+	@mkdir -p out
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go test -v -coverprofile=./out/coverage.out -mod=mod ./...
 
 ## coverage: Show unit test coverage report
 coverage: test
 	@echo "  >  Parsing coverage..."
-	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go tool cover -html=.coverage.out
+	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go tool cover -html=./out/coverage.out
 
 ## docker-build: Builds the docker image.
 docker-build:
