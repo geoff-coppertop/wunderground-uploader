@@ -7,13 +7,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func setValidTestConfig() {
+func SetValidTestConfig() {
 	os.Setenv("DEBUG", "info")
 
 	os.Setenv("SERVER_URL", "mqtt://example.com:1883")
 	os.Setenv("TOPIC", "weather")
 	os.Setenv("KA_TIME", "10")
 	os.Setenv("CRD_TIME", "100")
+
+	os.Setenv("STATION_ID", "ID")
+	os.Setenv("STATION_KEY", "KEY")
 }
 
 func TestGetConfigNoEnv(t *testing.T) {
@@ -24,7 +27,7 @@ func TestGetConfigNoEnv(t *testing.T) {
 	}
 }
 func TestGetConfigValid(t *testing.T) {
-	setValidTestConfig()
+	SetValidTestConfig()
 
 	cfg, err := GetConfig()
 
@@ -52,7 +55,7 @@ func TestGetConfigInvalidValues(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		setValidTestConfig()
+		SetValidTestConfig()
 		os.Setenv(test.key, test.value)
 
 		if _, err := GetConfig(); err == nil {

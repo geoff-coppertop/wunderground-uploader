@@ -16,9 +16,13 @@ const (
 	envDebug = "DEBUG" // Controls debug level for the whole program, should be one of panic, fatal, error, warn, info, debug, or trace
 
 	envServerURL         = "SERVER_URL" // MQTT server URL
-	envTopic             = "TOPIC"      // topic to subscribe to
 	envKeepAlive         = "KA_TIME"    // seconds between keepalive packets
 	envConnectRetryDelay = "CRD_TIME"   // milliseconds to delay between connection attempts
+
+	envTopic = "TOPIC" // topic to subscribe to
+
+	envStationID  = "STATION_ID"  // Weather underground station ID
+	envStationKey = "STATION_KEY" // Weather underground station key
 )
 
 // Config holds the configuration
@@ -30,6 +34,10 @@ type Config struct {
 	Topic             string        // Topic on which to publish messaged
 	KeepAlive         uint16        // seconds between keepalive packets
 	ConnectRetryDelay time.Duration // Period between connection attempts
+
+	// Station details
+	StationID  string
+	StationKey string
 }
 
 // GetConfig - Retrieves the configuration from the environment
@@ -64,6 +72,13 @@ func GetConfig() (Config, error) {
 	cfg.KeepAlive = uint16(iKA)
 
 	if cfg.ConnectRetryDelay, err = milliSecondsFromEnv(envConnectRetryDelay); err != nil {
+		return Config{}, err
+	}
+
+	if cfg.StationID, err = stringFromEnv(envStationID); err != nil {
+		return Config{}, err
+	}
+	if cfg.StationKey, err = stringFromEnv(envStationKey); err != nil {
 		return Config{}, err
 	}
 

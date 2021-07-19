@@ -15,6 +15,8 @@ STDERR=/tmp/wunderground-uploader-stderr.txt
 # Make is verbose in Linux. Make it silent.
 MAKEFLAGS += --silent
 
+platform?=linux/amd64
+
 ## clean: Clean build files.
 .PHONY: clean
 clean:
@@ -49,16 +51,20 @@ coverage: test
 	@echo "  >  Parsing coverage..."
 	@GOPATH=$(GOPATH) GOBIN=$(GOBIN) go tool cover -html=./out/coverage.out
 
-## docker-build: Builds the docker image.
+## docker-build: Builds the docker image, defaults to linux/amd64 platform can be specified by platform=<platform>.
 docker-build:
 	@echo "  >  Building docker image..."
-	@docker build -t ghcr.io/geoff-coppertop/wunderground-uploader:latest .
-
-## docker-push: Pushes the docker image.
-docker-push: docker-build
 	@echo $(CR_PAT) | docker login ghcr.io -u geoff-coppertop --password-stdin
-	@docker push ghcr.io/geoff-coppertop/wunderground-uploader:latest
+	@DOCKER_BUILDKIT=0 docker buildx build \
+		--platform $(platform) \
+		-t ghcr.io/geoff-coppertop/wunderground-uploader:latest \
+		--push .
 	@docker logout ghcr.io
+
+## docker-build-all: Builds all docker images.
+docker-build-all:
+	@-$(MAKE) -s docker-build platform=linux/amd64,linux/arm64
+
 
 .PHONY: help
 all: help

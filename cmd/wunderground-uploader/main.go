@@ -4,13 +4,14 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
-	conf "github.com/geoff-coppertop/wunderground-uploader/internal/config"
-	"github.com/geoff-coppertop/wunderground-uploader/internal/mqtt"
+	cfg "github.com/geoff-coppertop/wunderground-uploader/internal/config"
+	sub "github.com/geoff-coppertop/wunderground-uploader/internal/subscriber"
+	tmg "github.com/geoff-coppertop/wunderground-uploader/internal/transmogrifier"
+	wund "github.com/geoff-coppertop/wunderground-uploader/internal/wunderground"
 	log "github.com/sirupsen/logrus"
-
-	"github.com/eclipse/paho.golang/paho"
 )
 
 func main() {
@@ -18,7 +19,7 @@ func main() {
 		FullTimestamp: true,
 	})
 
-	cfg, err := conf.GetConfig()
+	cfg, err := cfg.GetConfig()
 	if err != nil {
 		log.Panic(err)
 	}
@@ -31,30 +32,41 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	cm, err := mqtt.Connect(
-		ctx,
-		cfg,
-		func(m *paho.Publish) {
-			log.Info("RX: ", m)
-		})
-	if err != nil {
-		log.Panic(err)
+	var wg sync.WaitGroup
+
+	dataCh := sub.Start(ctx, &wg, cfg)
+
+	wxCh := tmg.Start(ctx, &wg, dataCh)
+
+	pubCh := wund.Start(ctx, &wg, cfg, wxCh)
+
+	WaitProcess(&wg, pubCh, cancel)
+}
+
+func WaitProcess(wg *sync.WaitGroup, ch <-chan struct{}, cancel context.CancelFunc) {
+	log.Info("Waiting")
+
+	select {
+	case <-OSExit():
+		log.Info("signal caught - exiting")
+
+	case <-ch:
+		log.Errorf("uh-oh")
 	}
 
-	// Messages will be handled through the callback so we really just need to wait until a shutdown
-	// is requested
+	cancel()
+
+	log.Info("cancelled")
+
+	wg.Wait()
+
+	log.Info("goodbye")
+}
+
+func OSExit() <-chan os.Signal {
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt)
 	signal.Notify(sig, syscall.SIGTERM)
 
-	log.Info("Waiting")
-
-	<-sig
-
-	log.Info("signal caught - exiting")
-
-	// We could cancel the context at this point but will call Disconnect instead (this waits for autopaho to shutdown)
-	mqtt.Disconnect(cm)
-
-	log.Info("shutdown complete")
+	return sig
 }
