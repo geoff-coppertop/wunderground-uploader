@@ -15,7 +15,7 @@ FROM scratch
 LABEL org.opencontainers.image.source https://github.com/geoff-coppertop/wunderground-uploader
 
 COPY --from=go-builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=go-builder /wunderground-uploader/bin/wunderground-uploader /
+COPY --from=go-builder /wunderground-uploader/out/wunderground-uploader /
 
 # Run
 CMD ["/wunderground-uploader"]
