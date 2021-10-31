@@ -74,14 +74,22 @@ func transmogrify(data map[string]interface{}) (map[string]string, error) {
 func formatField(key string, value interface{}) (outKey string, outValue string, err error) {
 	// https://support.weather.com/s/article/PWS-Upload-Protocol?language=en_US
 	innerMap := map[string]wundergroundDataType{
-		"winddirection":    {"winddir", "%.f", nil},
-		"windspeedaverage": {"windspdmph_avg2m", "%.1f", mpstomph},
-		"windspeedgust":    {"windgustmph", "%.1f", mpstomph},
-		// "rainaccumulation": {"rainin", "%.1f", mmtoin},
-		"temperature": {"tempf", "%.1f", ctof},
-		"humidity":    {"humidity", "%.f", nil},
-		"sunlight":    {"solarradiation", "%.1f", stosr},
-		"uvindex":     {"UV", "%.1f", nil},
+		"dewpoint": {"dewptf", "%.1f", ctof},
+		"hum":      {"humidity", "%.f", nil},
+		"temp":     {"tempf", "%.1f", ctof},
+		"solar":    {"solarradiation", "%.1f", nil},
+		"uv":       {"UV", "%.1f", nil},
+
+		"wdir":      {"winddir", "%.f", nil},
+		"wdir_gust": {"windgustdir", "%.f", nil},
+		"wdir_2m":   {"winddir_avg2m", "%.f", nil},
+
+		"wspd":      {"windspdmph", "%.1f", mpstomph},
+		"wspd_2m":   {"windspdmph_avg2m", "%.1f", mpstomph},
+		"wspd_gust": {"windgustmph", "%.1f", mpstomph},
+
+		"rain_1hr":  {"rainin", "%.1f", mmtoin},
+		"rain_24hr": {"dailyrainin", "%.1f", mmtoin},
 	}
 
 	err = nil

@@ -14,7 +14,7 @@ import (
 
 const (
 	BaseURL   = "https://weatherstation.wunderground.com/weatherstation/updateweatherstation.php"
-	ApiFormat = "%s?ID=%s&PASSWORD=%s&dateutc=now&action=updateraw"
+	ApiFormat = "%s?ID=%s&PASSWORD=%s&dateutc=now&action=updateraw&softwaretype=wunderground-uploader"
 )
 
 func Start(ctx context.Context, wg *sync.WaitGroup, cfg cfg.Config, dataCh <-chan map[string]string) <-chan struct{} {

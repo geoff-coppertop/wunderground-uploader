@@ -5,8 +5,7 @@ import (
 )
 
 func TestFormatFieldSuccess(t *testing.T) {
-	// _, _, err := formatField("winddirection", 65.0)
-	_, _, err := formatField("windspeedaverage", 0.5)
+	_, _, err := formatField("wspd", 0.5)
 
 	if err != nil {
 		t.Errorf("%w", err)
@@ -14,7 +13,7 @@ func TestFormatFieldSuccess(t *testing.T) {
 }
 
 func TestFormatFieldTransmogrify(t *testing.T) {
-	_, _, err := formatField("temperature", 20.5)
+	_, _, err := formatField("temp", 20.5)
 
 	if err != nil {
 		t.Errorf("Unexpected error")
