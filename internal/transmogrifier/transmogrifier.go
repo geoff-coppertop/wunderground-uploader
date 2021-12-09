@@ -84,7 +84,7 @@ func formatField(key string, value interface{}) (outKey string, outValue string,
 		"wdir_gust": {"windgustdir", "%.f", nil},
 		"wdir_2m":   {"winddir_avg2m", "%.f", nil},
 
-		"wspd":      {"windspdmph", "%.1f", mpstomph},
+		"wspd":      {"windspeedmph", "%.1f", mpstomph},
 		"wspd_2m":   {"windspdmph_avg2m", "%.1f", mpstomph},
 		"wspd_gust": {"windgustmph", "%.1f", mpstomph},
 
